@@ -69,14 +69,18 @@ def convert_to_wav(sentences, start_point, progress_bar):
 st.set_page_config(page_title="pdf 2 MP3")
 st.header("Convert your pdf to Audio")
 pdf = st.file_uploader("Upload your PDF", type="pdf")
+completed = False
     
+file_path = "output.wav"
 if pdf is not None:
     sentences = read_pdf(pdf)
     start_point = get_start_point(pdf)
     progress_bar = st.progress(0)
-    convert_to_wav(sentences, start_point, progress_bar)
+    if not completed:
+        convert_to_wav(sentences, start_point, progress_bar)
+        completed = True
 
-    if st.button("Open Output file"):
-        st.markdown(f"[Download Output File](output.wav)")
+    if completed:
+        st.write("completed, file: output.wav")
 
 
