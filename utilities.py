@@ -22,13 +22,11 @@ from PyPDF2 import PdfReader
 from tqdm import tqdm
 import nltk
 import wave
-import streamlit as st
 
 from PyPDF2 import PdfReader
 from tqdm import tqdm
 import nltk
 import wave
-import streamlit as st
 
 checkpoint_file = "checkpoint.txt"
 

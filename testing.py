@@ -1,3 +1,4 @@
+
 import os
 import time
 import torch
@@ -25,7 +26,6 @@ from PyPDF2 import PdfReader
 from tqdm import tqdm
 import nltk
 import wave
-import streamlit as st
 
 checkpoint_file = "checkpoint.txt"
 
@@ -39,8 +39,8 @@ def convert_to_wav(sentences, start_point, progress_bar):
     silence = np.zeros(int(0.25*SAMPLE_RATE))
 
     pieces = []
+    sentences = read_pdf("The Crypto Anarchist Manifesto.pdf")
 
-    sentences = read_pdf("The Crypto Anarchist Manifesto.pdf")[0:5]
     line_count = len(sentences)
     print(line_count)
     for i, line in enumerate(sentences):
@@ -60,27 +60,19 @@ def convert_to_wav(sentences, start_point, progress_bar):
         with open(checkpoint_file, "a") as f:
             # its hacky, but tracks progress with a textfile in case its interrupted
             f.write(f"{i}\n")
-        progress_bar.progress((i+1)/line_count)
+        #progress_bar.progress((i+1)/line_count)
     os.remove(checkpoint_file) # remove on completion
 
     print("completed.")
     print("---%s seconds ---" % (time.time()-start_time))
 
-st.set_page_config(page_title="pdf 2 MP3")
-st.header("Convert your pdf to Audio")
-pdf = st.file_uploader("Upload your PDF", type="pdf")
 completed = False
     
 file_path = "output.wav"
-if pdf is not None:
-    sentences = read_pdf(pdf)
-    start_point = get_start_point(pdf)
-    progress_bar = st.progress(0)
-    if not completed:
-        convert_to_wav(sentences, start_point, progress_bar)
-        completed = True
-
-    if completed:
-        st.write("completed, file: output.wav")
-
+sentences = read_pdf("The Crypto Anarchist Manifesto.pdf")
+start_point = get_start_point("The Crypto Anarchist Manifesto.pdf")
+progress_bar = 0
+if not completed:
+    convert_to_wav(sentences, start_point, progress_bar)
+    completed = True
 
