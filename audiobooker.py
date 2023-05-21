@@ -29,6 +29,12 @@ import streamlit as st
 
 checkpoint_file = "checkpoint.txt"
 
+def read_txt(filename):
+    content = filename.read().decode("utf-8")
+    sentences = content.split(". ")
+    sentences = [sentence.strip()+'.' for sentence in sentences]
+    return sentences
+
 
 def convert_to_wav(sentences, start_point, progress_bar, existing_audio):
     start_time = time.time()
@@ -67,9 +73,9 @@ def convert_to_wav(sentences, start_point, progress_bar, existing_audio):
     print("completed.")
     print("---%s seconds ---" % (time.time()-start_time))
 
-st.set_page_config(page_title="pdf 2 MP3")
-st.header("Convert your pdf to Audio")
-pdf = st.file_uploader("Upload your PDF", type="pdf")
+st.set_page_config(page_title="text 2 MP3")
+st.header("Convert your pdf or txt file to Audio")
+file = st.file_uploader("Upload your file(pdf, txt)")
 completed = False
     
 file_path = "output.wav"
@@ -80,9 +86,19 @@ if os.path.exists(file_path):
 else: existing_audio = None
 
 
-if pdf is not None:
-    sentences = read_pdf(pdf)
-    start_point = get_start_point(pdf)
+if file is not None:
+    file_type = file.name.split('.')[-1].lower()
+    print(file_type)
+    match file_type:
+        case 'pdf':
+            sentences = read_pdf(file)
+        case 'txt':
+            sentences = read_txt(file)
+        case _: 
+            sentences = []
+
+
+    start_point = get_start_point(file)
     progress_bar = st.progress(0)
     if not completed:
         convert_to_wav(sentences, start_point, progress_bar, existing_audio)
