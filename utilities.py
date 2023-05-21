@@ -22,11 +22,12 @@ from PyPDF2 import PdfReader
 from tqdm import tqdm
 import nltk
 import wave
+import shutil
+import soundfile as sf
 
 from PyPDF2 import PdfReader
 from tqdm import tqdm
 import nltk
-import wave
 
 checkpoint_file = "checkpoint.txt"
 
@@ -71,3 +72,20 @@ def generate_audio_high():
         )
         audio_array = semantic_to_waveform(semantic_tokens, history_prompt=SPEAKER,)
         return audio_array
+
+def join_wav_files(input_file1, input_file2, outputfile):
+    data1, sample_rate1 = sf.read(input_file1)
+    data2, sample_rate2 = sf.read(input_file2)
+
+    # Concatenate the audio data
+    output_data = np.concatenate((data1, data2))
+
+    # Write the joined audio to a temporary output file
+    print(f"outputfile: {outputfile}")
+    temp_file = "temp_output.wav"
+    write_wav(temp_file, SAMPLE_RATE, output_data)
+    shutil.move(temp_file, outputfile)
+
+
+    print(f"Joined {input_file1} and {input_file2} into {outputfile} successfully.")
+

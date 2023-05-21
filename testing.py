@@ -56,7 +56,12 @@ def convert_to_wav(sentences, start_point, progress_bar):
             audio_array = generate_audio(chunk, history_prompt=SPEAKER)
             pieces.append(audio_array)
 
-        write_wav("output.wav", SAMPLE_RATE, np.concatenate(pieces))
+        write_wav("output_section.wav", SAMPLE_RATE, np.concatenate(pieces))
+        if os.path.exists("output.wav"):
+            join_wav_files("output.wav", "output_section.wav", "output.wav")
+        else:
+            write_wav("output.wav", SAMPLE_RATE, np.concatenate(pieces))
+
         with open(checkpoint_file, "a") as f:
             # its hacky, but tracks progress with a textfile in case its interrupted
             f.write(f"{i}\n")

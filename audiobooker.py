@@ -10,7 +10,7 @@ os.environ["SUNO_USE_SMALL_MODELS"] = "True"
 
 from utilities import *
 from bark import SAMPLE_RATE, generate_audio, preload_models
-from scipy.io.wavfile import write as write_wav
+from scipy.io.wavfile import write as write_wav, read as read_wav
 from IPython.display import Audio
 from bark.generation import (
     generate_text_semantic,
@@ -30,7 +30,7 @@ import streamlit as st
 checkpoint_file = "checkpoint.txt"
 
 
-def convert_to_wav(sentences, start_point, progress_bar):
+def convert_to_wav(sentences, start_point, progress_bar, existing_audio):
     start_time = time.time()
     SPEAKER = f"v2/en_speaker_3"
     preload_models()
@@ -39,10 +39,11 @@ def convert_to_wav(sentences, start_point, progress_bar):
     silence = np.zeros(int(0.25*SAMPLE_RATE))
 
     pieces = []
+    if np.any(existing_audio):
+        pieces.append(existing_audio)
 
-    sentences = read_pdf("The Crypto Anarchist Manifesto.pdf")[0:5]
     line_count = len(sentences)
-    print(line_count)
+    print(f"total lines: {line_count}")
     for i, line in enumerate(sentences):
         if i < start_point: continue
         # seems like 12 seconds max. 200 char too much sometimes, going with 25 word chunks
@@ -72,12 +73,19 @@ pdf = st.file_uploader("Upload your PDF", type="pdf")
 completed = False
     
 file_path = "output.wav"
+if os.path.exists(file_path):
+    # load existing file, if it was interrupted will resume where left off
+    sample_rate, existing_audio = read_wav(file_path)
+
+else: existing_audio = None
+
+
 if pdf is not None:
     sentences = read_pdf(pdf)
     start_point = get_start_point(pdf)
     progress_bar = st.progress(0)
     if not completed:
-        convert_to_wav(sentences, start_point, progress_bar)
+        convert_to_wav(sentences, start_point, progress_bar, existing_audio)
         completed = True
 
     if completed:
