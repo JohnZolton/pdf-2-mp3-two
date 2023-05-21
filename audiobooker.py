@@ -30,8 +30,10 @@ import streamlit as st
 checkpoint_file = "checkpoint.txt"
 
 def read_txt(filename):
-    content = filename.read().decode("utf-8")
-    sentences = content.split(". ")
+    lines = filename.readlines()
+    content = ' '.join(line.decode('utf-8') for line in lines)
+    content = content.replace('\r\n', ' ')
+    sentences = content.split('. ')
     sentences = [sentence.strip()+'.' for sentence in sentences]
     return sentences
 
